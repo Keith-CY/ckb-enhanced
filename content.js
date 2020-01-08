@@ -7,7 +7,8 @@ const headers = new Headers({
 
 const storageKey = {
   addresses: 'addresses',
-  balances: 'balances'
+  balances: 'balances',
+  lastUpdateTime: 'lastUpdateTime'
 }
 
 const updateBalnace = async () => {
@@ -31,6 +32,10 @@ const updateBalnace = async () => {
   const tuples = addresses.map((addr, idx) => [addr, balances[idx]])
   chrome.storage.local.set({
     [storageKey.balances]: tuples
+  })
+
+  chrome.storage.local.set({
+    [storageKey.lastUpdateTime]: Date.now()
   })
 }
 

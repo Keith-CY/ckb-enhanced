@@ -21,3 +21,13 @@ export const getTotalBalance = (addresses, balances) => {
     .reduce((t, addr) => t + BigInt(balances.get(addr) || "0"), 0n)
     .toString();
 }
+
+export const timeFormat = new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+  second: "numeric",
+  hour12: false
+});

@@ -18,6 +18,7 @@
   }
   .label {
     font-weight: bold;
+    user-select: none;
   }
 </style>
 
