@@ -39,7 +39,7 @@ chrome.storage.onChanged.addListener(async changes => {
   const message = changedBalances.map(
     ([addr, oldBalance, newBalance]) => `${addr.slice(0, 6)}...${addr.slice(-6)} changed from ${formatCKB(oldBalance || '0')} to ${formatCKB(newBalance || '0')}`
   ).join('\n')
-  chrome.notifications.create(changedBalances[0][0], {
+  chrome.notifications.create(`${changedBalances[0][0]}-${Date.now()}`, {
     type: "basic",
     title: 'Balance changed',
     message,
@@ -49,8 +49,11 @@ chrome.storage.onChanged.addListener(async changes => {
   });
 });
 
-chrome.notifications.onClicked.addListener(addr => {
-  chrome.tabs.create({
-    url: `https://explorer.nervos.org/address/${addr}`
-  })
+chrome.notifications.onClicked.addListener(id => {
+  const addr = id.split('-')[0]
+  if (addr) {
+    chrome.tabs.create({
+      url: `https://explorer.nervos.org/address/${addr}`
+    })
+  }
 })

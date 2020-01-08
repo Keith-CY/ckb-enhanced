@@ -1,4 +1,5 @@
 <script>
+  import TotalBalance from "./components/TotalBalance.svelte";
   import AddressList from "./components/AddressList.svelte";
   let addresses = [];
   let balances = new Map();
@@ -29,10 +30,14 @@
 <style>
   main {
     display: flex;
+    flex-direction: column;
     min-width: 500px;
   }
 </style>
 
 <main>
+  {#if addresses.length}
+    <TotalBalance {addresses} {balances} />
+  {/if}
   <AddressList {addresses} {balances} />
 </main>
