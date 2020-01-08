@@ -1,0 +1,29 @@
+{
+  "manifest_version": 2,
+  "name": "CKB Enhanced",
+  "description": "A chrome extension for enhance user-experience on CKB",
+  "version": "0.1.1",
+  "version_name": "0.1.1-alpha",
+  "browser_action": {
+    "default_icon": {
+      "16": "images/ckb-enhanced.png",
+      "24": "images/ckb-enhanced.png",
+      "32": "images/ckb-enhanced.png"
+    },
+    "default_title": "CKB Enhanced",
+    "default_popup": "popup/public/index.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://explorer.nervos.org/*"],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "permissions": ["tabs", "storage", "notifications"],
+  "options_page": "options.html"
+}
