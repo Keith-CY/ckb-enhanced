@@ -19,7 +19,7 @@
 <style>
   .address-list {
     width: 100%;
-    padding: 15px 0;
+    padding: 5px 0 15px 0;
   }
 
   .item {

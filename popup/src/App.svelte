@@ -2,26 +2,36 @@
   import TotalBalance from "./components/TotalBalance.svelte";
   import AddressList from "./components/AddressList.svelte";
   import UpdateTime from "./components/UpdateTime.svelte";
-  import { timeFormat } from "./utils.js";
+  import Balance from "./components/Balance.svelte";
+  import {
+    timeFormat,
+    mapAddrGroupToGroupAddrs,
+    formatCKB,
+    getTotalBalance
+  } from "./utils.js";
 
   let addresses = [];
+  let groupAddrsMap = new Map([]);
   let balances = new Map();
   let time = "";
 
   if (chrome && chrome.storage) {
-    chrome.storage.local.get("addresses", s => {
-      if (Array.isArray(s.addresses)) {
-        addresses = s.addresses;
+    chrome.storage.local.get(
+      ["addresses", "balances", "lastUpdateTime", "groups"],
+      s => {
+        if (Array.isArray(s.addresses)) {
+          addresses = s.addresses;
+        }
+        balances = new Map(s.balances);
+        time = s.lastUpdateTime ? timeFormat.format(s.lastUpdateTime) : "";
+        const mapping = mapAddrGroupToGroupAddrs(
+          addresses,
+          new Map(s.groups),
+          "ungrouped"
+        );
+        groupAddrsMap = mapping;
       }
-    });
-
-    chrome.storage.local.get("balances", s => {
-      balances = new Map(s.balances);
-    });
-
-    chrome.storage.local.get("lastUpdateTime", s => {
-      time = s.lastUpdateTime ? timeFormat.format(s.lastUpdateTime) : "";
-    });
+    );
 
     chrome.storage.onChanged.addListener(changes => {
       for (let key in changes) {
@@ -36,6 +46,14 @@
       }
     });
   }
+  const onOpenSetting = () => {
+    if (chrome && chrome.runtime) {
+      const url = chrome.runtime.getURL("options/public/index.html");
+      chrome.tabs.create({
+        url
+      });
+    }
+  };
 </script>
 
 <style>
@@ -44,13 +62,56 @@
     flex-direction: column;
     min-width: 500px;
   }
+  .setting-icon {
+    height: 1rem;
+    width: 1rem;
+    align-self: flex-end;
+    margin-top: 5px;
+    margin-right: 5px;
+  }
+  .group {
+    display: flex;
+    flex-direction: column;
+    margin-top: 15px;
+    font-size: 14px;
+  }
+  .group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 15px;
+  }
+  .group-name {
+    width: 100px;
+  }
+  .group-balance {
+    display: flex;
+  }
+  .balance-label {
+    padding-right: 5px;
+  }
 </style>
 
 <main>
+  <svg class="setting-icon" aria-hidden="true" on:click={onOpenSetting}>
+    <use xlink:href="#icon-settings" />
+  </svg>
   {#if addresses.length}
     <TotalBalance {addresses} {balances} />
   {/if}
-  <AddressList {addresses} {balances} />
+  {#each [...groupAddrsMap.keys()].sort((a, b) => groupAddrsMap.get(b).length - groupAddrsMap.get(a).length) as group (group)}
+    <section class="group">
+      <div class="group-header">
+        <span class="group-name">Group: {group}</span>
+        <span class="group-balance">
+          <span class="balance-label">Balance:</span>
+          <Balance
+            {...formatCKB(getTotalBalance(groupAddrsMap.get(group), balances))} />
+        </span>
+      </div>
+      <AddressList addresses={groupAddrsMap.get(group)} {balances} />
+    </section>
+  {/each}
   {#if time}
     <UpdateTime {time} />
   {/if}

@@ -1,4 +1,5 @@
 #!/bin/sh
+sh scripts/build.sh
 rm -rf release
 mkdir -p release/popup/public
 cp manifest.json release/manifest.json
