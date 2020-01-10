@@ -26,6 +26,7 @@
   },
   "permissions": ["tabs", "storage", "notifications"],
   "options_ui": {
-    "page": "options/public/index.html"
+    "page": "options/public/index.html",
+    "open_in_tab": true
   }
 }

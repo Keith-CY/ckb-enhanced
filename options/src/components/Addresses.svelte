@@ -74,6 +74,7 @@
     font-family: "Courier New", Courier, monospace;
     font-size: 16px;
     display: flex;
+    justify-content: space-between;
   }
   .actions {
     display: flex;
