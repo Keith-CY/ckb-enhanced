@@ -9,11 +9,6 @@
     chrome.tabs.create({
       url: `https://explorer.nervos.org/address/${addr}`
     });
-
-  const onOpenExplorer = () =>
-    chrome.tabs.create({
-      url: "https://explorer.nervos.org/"
-    });
 </script>
 
 <style>
@@ -41,13 +36,6 @@
     font-family: "Courier New", Courier, monospace;
     font-size: 16px;
   }
-
-  .note {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-  }
 </style>
 
 <section class="address-list">
@@ -60,9 +48,5 @@
         <Balance {...formatCKB(balances.get(addr) || '')} />
       </div>
     {/each}
-  {:else}
-    <div class="note" on:click={onOpenExplorer}>
-      Visit an address in CKB Explorer and click the subscribe to start
-    </div>
   {/if}
 </section>

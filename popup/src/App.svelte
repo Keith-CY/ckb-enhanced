@@ -54,6 +54,11 @@
       });
     }
   };
+
+  const onOpenExplorer = () =>
+    chrome.tabs.create({
+      url: "https://explorer.nervos.org/"
+    });
 </script>
 
 <style>
@@ -90,6 +95,13 @@
   .balance-label {
     padding-right: 5px;
   }
+  .note {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    padding: 0 0 15px 0;
+  }
 </style>
 
 <main>
@@ -98,6 +110,10 @@
   </svg>
   {#if addresses.length}
     <TotalBalance {addresses} {balances} />
+  {:else}
+    <div class="note" on:click={onOpenExplorer}>
+      Visit an address in CKB Explorer and click the subscribe to start
+    </div>
   {/if}
   {#each [...groupAddrsMap.keys()].sort((a, b) => groupAddrsMap.get(b).length - groupAddrsMap.get(a).length) as group (group)}
     <section class="group">
