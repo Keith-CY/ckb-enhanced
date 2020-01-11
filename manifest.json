@@ -2,8 +2,8 @@
   "manifest_version": 2,
   "name": "CKB Enhanced",
   "description": "A chrome extension for enhance user-experience on CKB",
-  "version": "0.1.5",
-  "version_name": "0.1.5-alpha",
+  "version": "0.1.6",
+  "version_name": "0.1.6-alpha",
   "browser_action": {
     "default_icon": {
       "16": "images/ckb-enhanced.png",

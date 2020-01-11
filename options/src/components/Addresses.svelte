@@ -5,6 +5,9 @@
     groups: "groups"
   };
   const ungroupedLabel = "ungrouped";
+
+  let files = [];
+
   let newGroupName = "";
   let addresses = [];
 
@@ -21,6 +24,11 @@
         }
         if (Array.isArray(result[storageKeys.groups])) {
           groups = new Map(result[storageKeys.groups]);
+          groups.forEach((g, a) => {
+            if (!addresses.includes(a)) {
+              groups.delete(a);
+            }
+          });
           addrGroupMap = groups;
         }
         const mapping = mapAddrGroupToGroupAddrs(
@@ -67,9 +75,67 @@
       });
     }
   };
+
+  const onImport = () => {
+    if (files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const addrs = JSON.parse(e.target.result);
+          Object.keys(addrs).forEach(addr => {
+            if (!addr) return;
+            const properties = addrs[addr];
+            if (!addresses.includes(addr)) {
+              addresses = [...addresses, addr];
+            }
+            addrGroupMap.set(addr, properties.group || ungroupedLabel);
+          });
+        } catch (err) {
+          window.alert(err.message);
+        }
+        if (chrome && chrome.storage) {
+          chrome.storage.local.set({
+            [storageKeys.addresses]: addresses
+          });
+        }
+        onSave();
+        const mapping = mapAddrGroupToGroupAddrs(
+          addresses,
+          addrGroupMap,
+          ungroupedLabel
+        );
+        groupAddrsMap = mapping;
+      };
+      reader.onerror = err => window.alert(err.message);
+      reader.readAsText(files[0]);
+    }
+    document.querySelector("#upload").value = "";
+  };
+
+  const onExport = () => {
+    const plain = {};
+    addrGroupMap.forEach((g, a) => {
+      plain[a] = { group: g };
+    });
+    const serialized = JSON.stringify(plain);
+    const elm = document.createElement("a");
+    elm.setAttribute("href", `data:text/plain;charset=utf-8,${serialized}`);
+    elm.setAttribute("download", "addresses.json");
+    elm.style.display = "none";
+    document.body.appendChild(elm);
+    elm.click();
+    document.body.removeChild(elm);
+  };
 </script>
 
 <style>
+  button {
+    margin: 0;
+  }
+  h3,
+  input {
+    margin: 0;
+  }
   .address {
     font-family: "Courier New", Courier, monospace;
     font-size: 16px;
@@ -78,18 +144,85 @@
   }
   .actions {
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+  }
+  .upload {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .upload button {
+    margin-left: 5px;
+  }
+  .fake-button {
+    appearance: button;
+    color: #333;
+    background: #f4f4f4;
+    padding: 0.4em;
+    box-sizing: border-box;
+    border-radius: 2px;
+    border: 1px solid #ccc;
+  }
+  .upload-input {
+    opacity: 0;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    width: 0;
+    height: 0;
+  }
+  .export {
+    flex: 1;
+  }
+  .separator {
+    display: flex;
+    padding: 0 5px;
+    justify-content: center;
+    align-items: center;
   }
 </style>
 
+<div class="actions">
+  <h3>Operations</h3>
+  <span class="separator">:</span>
+  <div class="add-group">
+    <input type="text" bind:value={newGroupName} />
+    <button
+      disabled={!newGroupName || newGroupName === ungroupedLabel || [...groupAddrsMap].includes(newGroupName)}
+      on:click={onAddGroup}>
+      Add group
+    </button>
+  </div>
+  <span class="separator">|</span>
+  <div class="upload">
+    <label for="upload">
+      {#if files[0]}
+        <span>{`selected file: ${files[0].name}`}</span>
+      {:else}
+        <span class="fake-button">Select addresses to import</span>
+      {/if}
+    </label>
+    <input id="upload" class="upload-input" type="file" bind:files />
+    {#if files.length}
+      <button on:click={onImport}>Import</button>
+    {/if}
+  </div>
+  <span class="separator">|</span>
+  <div class="export">
+    <button on:click={onExport}>Export addresses</button>
+  </div>
+  <span class="separator">|</span>
+  <div class="save">
+    <button on:click={onSave}>Save</button>
+  </div>
+</div>
 <div>
   {#each [...groupAddrsMap.keys()].sort((a, b) => groupAddrsMap.get(b).length - groupAddrsMap.get(a).length) as group (group)}
     <section class="group">
       <h2>{group}({groupAddrsMap.get(group).length})</h2>
       {#each groupAddrsMap.get(group) as address, i (address)}
         <section class="address">
-          <span>{i + 1}.</span>
-          <span>{address}</span>
+          <span>{i + 1}. {address}</span>
           <select
             value={group}
             on:change={e => {
@@ -104,15 +237,4 @@
       {/each}
     </section>
   {/each}
-  <div>
-    <input type="text" bind:value={newGroupName} />
-    <button
-      disabled={!newGroupName || newGroupName === ungroupedLabel || [...groupAddrsMap].includes(newGroupName)}
-      on:click={onAddGroup}>
-      Add group
-    </button>
-  </div>
-</div>
-<div class="actions">
-  <button on:click={onSave}>Save</button>
 </div>
