@@ -11,3 +11,4 @@ cp -r images release/images
 cp -r popup/public release/popup
 cp -r options/public release/options
 cd release/popup/public/build && rm *.map
+cd ../../../../release/options/public/build && rm *.map
