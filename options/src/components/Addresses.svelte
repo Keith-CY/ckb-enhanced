@@ -63,6 +63,7 @@
       return;
     if (/\s/.test(newGroupName)) {
       window.alert("Group name should not include whitespaces");
+      return;
     }
     groupAddrsMap.set(newGroupName, []);
     newGroupName = "";
@@ -113,9 +114,13 @@
   };
 
   const onExport = () => {
+    if (!addresses.length) {
+      window.alert(`There're no addresses`);
+    }
     const plain = {};
-    addrGroupMap.forEach((g, a) => {
-      plain[a] = { group: g };
+    addresses.forEach(addr => {
+      const g = addrGroupMap.get(addr) || ungroupedLabel;
+      plain[addr] = { group: g };
     });
     const serialized = JSON.stringify(plain);
     const elm = document.createElement("a");

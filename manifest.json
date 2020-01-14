@@ -7,8 +7,8 @@
     "48": "images/ckb-enhanced.png",
     "128": "images/ckb-enhanced.png"
   },
-  "version": "0.1.7",
-  "version_name": "0.1.7-alpha",
+  "version": "0.1.8",
+  "version_name": "0.1.8-alpha",
   "browser_action": {
     "default_icon": {
       "16": "images/ckb-enhanced.png",
