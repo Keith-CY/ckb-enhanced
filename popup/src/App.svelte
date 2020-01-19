@@ -80,16 +80,18 @@
     margin-top: 15px;
     font-size: 14px;
   }
-  .group-header {
+  group-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
     padding: 0 15px;
   }
-  .group-name {
+  group-name {
     width: 100px;
+    word-break: keep-all;
+    white-space: nowrap;
   }
-  .group-balance {
+  group-balance {
     display: flex;
   }
   .balance-label {
@@ -117,14 +119,14 @@
   {/if}
   {#each [...groupAddrsMap.keys()].sort((a, b) => groupAddrsMap.get(b).length - groupAddrsMap.get(a).length) as group (group)}
     <section class="group">
-      <div class="group-header">
-        <span class="group-name">Group: {group}</span>
-        <span class="group-balance">
+      <group-header>
+        <group-name>Group: {group}</group-name>
+        <group-balance>
           <span class="balance-label">Balance:</span>
           <Balance
             {...formatCKB(getTotalBalance(groupAddrsMap.get(group), balances))} />
-        </span>
-      </div>
+        </group-balance>
+      </group-header>
       <AddressList addresses={groupAddrsMap.get(group)} {balances} />
     </section>
   {/each}

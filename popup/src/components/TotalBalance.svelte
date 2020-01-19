@@ -13,16 +13,18 @@
     align-items: center;
     padding: 0 15px;
     margin-top: 15px;
-    font-size: 16px;
+    font-size: 1rem;
     cursor: default;
+    font-weight: 400;
   }
-  .label {
-    font-weight: bold;
+  label {
+    font-weight: 400;
     user-select: none;
+    cursor: default;
   }
 </style>
 
 <section class="total-balance">
-  <span class="label">Total balance:</span>
+  <label>Total balance:</label>
   <Balance {...formatCKB(total)} />
 </section>

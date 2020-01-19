@@ -27,7 +27,7 @@
   }
 
   .item:hover {
-    background: #e3e3e3;
+    background: #f3f2f1;
     user-select: none;
     cursor: pointer;
   }
