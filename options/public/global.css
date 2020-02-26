@@ -10,6 +10,21 @@ body {
 	margin: 0;
 	box-sizing: border-box;
 	font-family: "Segoe UI", Roboto, -apple-system, BlinkMacSystemFont, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	display: grid;
+	grid-template:
+		'header header'auto 'sidebar main'1fr 'sidebar main'1fr / 150px 1fr;
+}
+
+header {
+	grid-area: header
+}
+
+sidebar {
+	grid-area: sidebar;
+}
+
+main {
+	grid-area: main;
 }
 
 a {

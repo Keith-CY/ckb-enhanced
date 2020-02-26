@@ -34,7 +34,6 @@ export const timeFormat = new Intl.DateTimeFormat("zh-CN", {
 
 export const mapAddrGroupToGroupAddrs = (addresses, addrGroupMap, ungroupedLabel) => {
   const mapping = new Map();
-  console.log(addrGroupMap)
   addresses.forEach(addr => {
     const g = addrGroupMap.get(addr);
     if (g) {

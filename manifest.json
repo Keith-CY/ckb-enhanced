@@ -26,7 +26,7 @@
     }
   ],
   "background": {
-    "scripts": ["background.js"],
+    "scripts": ["ckb-sdk.min.js", "HDKeychain.min.js", "background.js"],
     "persistent": false
   },
   "permissions": ["tabs", "storage", "notifications"],

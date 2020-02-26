@@ -1,4 +1,6 @@
-const baseUrl = 'https://api.explorer.nervos.org/';
+// debug
+const isDebug = true
+const baseUrl = !isDebug ? 'https://api.explorer.nervos.org/' : 'https://api.explorer.nervos.org/testnet/'
 const addrAPI = `${baseUrl}api/v1/addresses`
 const headers = new Headers({
   'Content-Type': "application/vnd.api+json",
@@ -6,10 +8,70 @@ const headers = new Headers({
 })
 
 const storageKey = {
+  receives: 'receives',
+  changes: 'changes',
+  xpub: 'xpub',
   addresses: 'addresses',
   balances: 'balances',
-  lastUpdateTime: 'lastUpdateTime'
+  lastUpdateTime: 'lastUpdateTime',
+  walletBalances: 'wallet-balances'
 }
+
+const utils = {
+  accountPath: `m/44'/309'/0`,
+  loadWalletBalances: () => {
+    return new Promise((resolve, reject) => {
+      chrome.storage.local.get([storageKey.walletBalances], _caches => {
+        if (!_caches || !_caches[storageKey.walletBalances] || !Array.isArray(_caches[storageKey.walletBalances])) {
+          resolve(new Map())
+        } else {
+          resolve(new Map(_caches[storageKey.walletBalances]))
+        }
+      })
+    })
+  },
+  setWalletBalances: (_balances) => {
+    return new Promise((resolve, reject) => {
+      chrome.storage.local.set({
+        [storageKey.walletBalances]: [..._balances]
+      }, () => {
+        resolve(true)
+      })
+    })
+  },
+  loadXpubAndAddrs: () => {
+    return new Promise((resolve, reject) => {
+      chrome.storage.local.get([storageKey.xpub, storageKey.receives, storageKey.changes], _caches => {
+        if (_caches && _caches[storageKey.xpub] && Array.isArray(_caches[storageKey.receives]) && Array.isArray(_caches[storageKey.changes])) {
+          resolve({
+            [storageKey.xpub]: _caches[storageKey.xpub],
+            [storageKey.receives]: new Map(_caches[storageKey.receives]),
+            [storageKey.changes]: new Map(_caches[storageKey.changes])
+          })
+        } else {
+          resolve({
+            [storageKey.xpub]: '',
+            [storageKey.receives]: new Map(),
+            [storageKey.changes]: new Map()
+          })
+        }
+      })
+    })
+  },
+}
+
+const fetchBalace = (addr) => fetch(`${addrAPI}/${addr}`, {
+  mode: 'cors',
+  headers
+}).then(res => {
+  if (res.status === 200) {
+    return res.json()
+  } else {
+    throw new Error("nework error")
+  }
+}).then(res => {
+  return res.data.attributes.balance !== undefined ? res.data.attributes.balance : ''
+}).catch(() => '')
 
 const updateBalnace = async () => {
   const addresses = await new Promise((resolve) => {
@@ -17,18 +79,7 @@ const updateBalnace = async () => {
       return Array.isArray(s.addresses) ? resolve(s.addresses) : resolve([])
     })
   })
-  const balances = await Promise.all(addresses.map(addr => fetch(`${addrAPI}/${addr}`, {
-    mode: 'cors',
-    headers
-  }).then(res => {
-    if (res.status === 200) {
-      return res.json()
-    } else {
-      throw new Error("nework error")
-    }
-  }).then(res => {
-    return res.data.attributes.balance !== undefined ? res.data.attributes.balance : ''
-  }).catch(() => '')))
+  const balances = await Promise.all(addresses.map(addr => fetchBalace(addr)))
   const tuples = addresses.map((addr, idx) => [addr, balances[idx]])
   chrome.storage.local.set({
     [storageKey.balances]: tuples
@@ -93,3 +144,33 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
     }
   }
 })
+
+
+/**
+ * tasks
+ * sync wallet
+ */
+
+let addrIdx = 0
+let startSyncWalletBalancesHandler
+const stopSyncWalletBalances = () => {
+  clearInterval(startSyncWalletBalancesHandler)
+}
+const startSyncWalletBalances = () => {
+  stopSyncWalletBalances()
+  startSyncWalletBalancesHandler = setInterval(async () => {
+    const res = await utils.loadXpubAndAddrs()
+    const _walletBalances = await utils.loadWalletBalances()
+    if (!res.receives || !res.changes || !res.receives.size || !res.changes.size) return
+    addrIdx = addrIdx % res.receives.size
+    const _receiveAddr = res.receives.get(`${utils.accountPath}/0/${addrIdx}`)
+    const _changeAddr = res.changes.get(`${utils.accountPath}/1/${addrIdx}`)
+    addrIdx++
+    const _balances = await Promise.all([_receiveAddr, _changeAddr].map(_addr => fetchBalace(_addr)))
+    _walletBalances.set(_receiveAddr, _balances[0])
+    _walletBalances.set(_changeAddr, _balances[1])
+    await utils.setWalletBalances(_walletBalances)
+  }, 2000)
+}
+
+startSyncWalletBalances()

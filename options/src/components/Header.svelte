@@ -11,6 +11,7 @@
     background: #0c4842;
     color: #fff;
     padding: 0 15px;
+    cursor: default;
   }
 </style>
 
