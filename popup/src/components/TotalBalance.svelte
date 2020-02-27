@@ -12,7 +12,6 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 15px;
-    margin-top: 15px;
     font-size: 1rem;
     cursor: default;
     font-weight: 400;
@@ -25,6 +24,6 @@
 </style>
 
 <section class="total-balance">
-  <label>Total balance:</label>
+  <label>Subscribed Balance:</label>
   <Balance {...formatCKB(total)} />
 </section>

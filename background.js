@@ -1,5 +1,5 @@
+const isDebug = false
 const ckb = new Core()
-const isDebug = true
 
 const storageKey = {
   receives: 'receives',

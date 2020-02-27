@@ -1,5 +1,5 @@
 // debug
-const isDebug = true
+const isDebug = false
 const baseUrl = !isDebug ? 'https://api.explorer.nervos.org/' : 'https://api.explorer.nervos.org/testnet/'
 const addrAPI = `${baseUrl}api/v1/addresses`
 const headers = new Headers({

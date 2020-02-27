@@ -1,3 +1,13 @@
+export const storageKey = {
+  receives: 'receives',
+  changes: 'changes',
+  xpub: 'xpub',
+  addresses: 'addresses',
+  balances: 'balances',
+  lastUpdateTime: 'lastUpdateTime',
+  walletBalances: 'wallet-balances',
+  walletTotalBalance: 'wallet-total-balance',
+}
 export const formatCKB = ckb => {
   const int = (BigInt(ckb) / BigInt(10 ** 8))
     .toString()

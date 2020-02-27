@@ -1,4 +1,5 @@
 <script>
+  import Wallet from "./components/Wallet.svelte";
   import TotalBalance from "./components/TotalBalance.svelte";
   import AddressList from "./components/AddressList.svelte";
   import UpdateTime from "./components/UpdateTime.svelte";
@@ -104,12 +105,20 @@
     cursor: pointer;
     padding: 0 0 15px 0;
   }
+  .hr {
+    width: 100%;
+    height: 1px;
+    background-color: #ddd;
+    margin: 15px 0;
+  }
 </style>
 
 <main>
   <svg class="setting-icon" aria-hidden="true" on:click={onOpenSetting}>
     <use xlink:href="#icon-settings" />
   </svg>
+  <Wallet />
+  <div class="hr" />
   {#if addresses.length}
     <TotalBalance {addresses} {balances} />
   {:else}
